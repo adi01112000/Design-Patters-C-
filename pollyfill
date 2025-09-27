@@ -1,0 +1,129 @@
+Array.prototype.myMap = function(cb) {
+   let result = [];
+   for(let i = 0; i<this.length; i++) {
+      result.push(cb(this[i], i, this));
+   }
+   return result;
+}
+
+Array.prototype.myFilter = function(cb) {
+   let result = [];
+   for(let i = 0; i<this.length; i++) {
+     if(cb(this[i], i, this)) result.push(this[i]);
+   }
+   return result;
+}
+
+Array.prototype.myReduce = function(cb, initialValue) {
+   let acc = initialValue;
+   for(let i = 0; i<this.length; i++) {
+     acc = acc ? cb(acc, this[i], i, this) : this[i];
+   }
+   return acc;
+}
+
+Array.prototype.myForEach = function(cb) {
+   for(let i = 0; i<this.length; i++) {
+       cb(this[i], i, this);
+   }
+}
+
+const myDebounce = (cb, duration) => {
+  let timer;
+  return (...args) => {
+    if(timer) clearTimeout(timer);
+    timer = setTimeout(() => {
+       cb(...args);
+    }, duration)
+  }
+}
+
+const myThrottle = (cb, duration) => {
+  let oldTime;
+  return (...args) => {
+     const newTime = new Date().getTime();
+     if(newTime - oldTime < duration) return
+     oldTime = newTime;
+     cb(...args);
+  }
+}
+
+// map bcz is allow function and undefined values are keys also
+const myMemo = (cb) => {
+   const cache = new Map();
+   return (...args) => {
+     const cacheArgs = JSON.stringify(args);
+     if(cache.has(cacheArgs)) {
+       return cache.get(cacheArgs);
+     } else {
+       const results = cb(...args);
+       cache.set(cacheArgs, results);
+       return results;
+     }
+   }
+}
+
+const deepClone = (obj) => {
+   const result = Array.isArray(obj) ? [] : {};
+   if(typeof obj != 'object' || obj == null || obj == undefined) {
+     return result;
+   }
+   const objKeys = Object.keys(obj);
+   objKeys.forEach((key) => {
+      result[key] = deepClone(obj[key]);
+   })
+   return result;
+}
+
+const myPromiseAll = (promises) => {
+   const result = [];
+   return new Promise((resolve, reject) => {
+       let pending = promises.length;
+       
+       if(!pending) {
+         resolve(results);
+         return;
+       }
+       
+       promises.forEach((promise, index) => {
+          Promise.resolve(promise).then((res) => {
+            result[index] = res;
+            pending--;
+            if(!pending) resolve(result);
+         }).catch((error) => {
+            reject(error);
+         })
+       })
+   }
+}
+
+const mySettledAll = (promises) => {
+   const result = [];
+   return new Promise((resolve, reject) => {
+       let pending = promises.length;
+       
+       if(!pending) {
+         resolve(result);
+         return;
+       }
+       
+       promises.forEach((promise, index) => {
+          promise.then((res) => {
+            result[index] = { status: "fulfilled", value: res };
+         }).catch((error) => {
+            result[index] = { status: "rejected", reason: error };
+         }).finally(() => {
+            pending--;
+            if(!pending) resolve(result);
+         })
+       })
+   }
+}
+
+
+
+let ar = [1, 2, 3, 4];
+const temp = ar.myReduce((acc, element) => {
+     return acc + element;
+})
+
